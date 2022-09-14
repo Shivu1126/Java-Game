@@ -5,29 +5,29 @@ import java.util.List;
 import java.util.Random;
 
 public class Snake_and_Ladders {
-	private static final int SNAKES_COUNT = 8;
-	private static final int LADDERS_COUNT = 8; 
+	private static final int SNAKES_COUNT = 8;		//8 Snakes
+	private static final int LADDERS_COUNT = 8; 	//8 Ladders
 	
-	private static int snakes[][];
-	private static int ladders[][];
+	private static int snakes[][];	//snakes position array
+	private static int ladders[][];	//ladders position array
 	
-	static ArrayList<PlayersDetails> players = new ArrayList<>();
-	
-	static int board[][]=new int[10][10];
+	static ArrayList<PlayersDetails> players = new ArrayList<>();	//players detail
+		
+	static int board[][]=new int[10][10];		//Board
 		
 	public static void main(String[] args) {
 		
-		Random random = new Random();
-								// (players,position,rollDice_Count)	
+		Random random = new Random(); //For roll dice
+				//players are Object(players,position)	
 		players.add(new PlayersDetails("p1",0));
 		players.add(new PlayersDetails("p2",0));
 		players.add(new PlayersDetails("p3",0));
 		players.add(new PlayersDetails("p4",0));
 		
-		snakes=new int[SNAKES_COUNT][2];
+		snakes=new int[SNAKES_COUNT][2];	
 		
-		snakes[0][0]=17;
-		snakes[0][1]=7;
+		snakes[0][0]=17;	//Snakes head position at Board
+		snakes[0][1]=7;		//Snakes tail position at Board
 		snakes[1][0]=54;
 		snakes[1][1]=34;
 		snakes[2][0]=62;
@@ -45,8 +45,8 @@ public class Snake_and_Ladders {
 		
 		ladders=new int[LADDERS_COUNT][2];
 		
-		ladders[0][0]=4;
-		ladders[0][1]=14;
+		ladders[0][0]=4;	//Ladder start position at Board
+		ladders[0][1]=14;	//Ladder end position at Board
 		ladders[1][0]=9;
 		ladders[1][1]=31;
 		ladders[2][0]=20;
@@ -71,46 +71,53 @@ public class Snake_and_Ladders {
 			for(j=0;j<10;j++)
 			{
 				board[i][j]=end;			
-				if(i%2==0)
-					end--;
+				if(i%2==0)		
+					end--;		
 				else
 					end++;	
-			}
-			
+			}		
 			if(i%2==0)
 				end-=9;
 			else
 				end-=11;
-
+			//'Even' (1-10, 21-30, ..., 81-90)  are printed left to right.
+			//'Odd'  (11-20, 31-40, ..., 91-100)  are printed right to left.
+			
 		}
 			
 		String playerName="";
 		int i=0;
 		do
 		{
-			playerName=players.get(i).player;
-			System.out.println(playerName+" roll the dice...");
-			int rollDice = random.nextInt(1,7);
+			playerName=players.get(i).player;		//Get a player name using list get method
+			System.out.println(playerName+" roll the dice...");	
+			int rollDice = random.nextInt(1,7);		//Dice is give the 1-6 random value.So used random class.
 			System.out.println("Dice value = "+rollDice);
-			int positionNow=players.get(i).position + rollDice;
+			int positionNow=players.get(i).position + rollDice;	
+			//Get a playing player position.
 			
 			positionNow=checkSnakeAttack(snakes,positionNow,playerName);
+			//check position of the player same as snakes head position.
+			
 			positionNow=checkLadderUp(ladders,positionNow,playerName);
-			players.get(i).position=positionNow; 
+			//check position of the player same as ladders start position.
+			
+			players.get(i).position=positionNow; //replace the position by new position
 			
 			System.out.println("Position of "+ playerName+" = "+players.get(i).position);
-			if(players.get(i).position>=100)
+			
+			if(players.get(i).position>=100)	//which player cross the 100 first..that player is win
 			{
 				System.out.println(playerName+" is win...");
-				viewBoard(players);
+				viewBoard(players);			//display board and player position
 				break;
 			}
-			if(i==3)
+			if(i==3)	//if all players playing one shift then board is printing
 			{
-				viewBoard(players);
+				viewBoard(players);		
 			}
 			i++;
-			if(i>players.size()-1)
+			if(i>players.size()-1)	//if last player finish the one shift then start from 1st player.
 				i=0;
 				
 		}while(true);
@@ -128,8 +135,10 @@ public class Snake_and_Ladders {
 					String p="";
 					for(int loop=0;loop<players.size();loop++)
 					{
-						if(players.get(loop).position==board[i][j])
+						if(players.get(loop).position==board[i][j])		
 						{
+							//if position of player and board value position are same 
+							//then add the player name in the temporary string.							
 							p+=players.get(loop).player;
 						}
 					}
@@ -142,14 +151,15 @@ public class Snake_and_Ladders {
 						}
 						System.out.print(board[i][j]+"\t");
 					}
-					else
+					else	 
 					{
 						try {
 							Thread.sleep(10);
 						} catch (InterruptedException e) {
 							e.printStackTrace();
 						}
-						System.err.print(board[i][j]+""+p+"\t");						
+						System.err.print(board[i][j]+""+p+"\t");
+						//if player name added..print the player name with board position
 					}
 				}
 				System.out.println();
@@ -160,6 +170,8 @@ public class Snake_and_Ladders {
 	{
 		for(int i=0;i<SNAKES_COUNT;i++)
 		{
+				//if snake head and position of the player are equal...
+				//return the new position(snake tail) of the player and update this.
 				if(snakes[i][0]==positionOfPlayer)
 				{
 					System.out.println(playerName+" attacked by position "+snakes[i][0]+" snake");
@@ -174,6 +186,8 @@ public class Snake_and_Ladders {
 	{
 		for(int i=0;i<LADDERS_COUNT;i++)
 		{
+				//if ladder start and position of the player are equal...
+				//return the new position(ladder end) of the player and update this.
 				if(ladders[i][0]==positionOfPlayer)
 				{
 					System.out.println(playerName+" claimed the ladder by position "+ladders[i][0]+" ladder");
@@ -187,11 +201,11 @@ public class Snake_and_Ladders {
 }
 class PlayersDetails
 {
-	String player;
+	String player;		
 	int position;
 	public PlayersDetails(String player,int position) 
 	{
-		this.player=player;
+		this.player=player;			
 		this.position=position;
 	}
 }
