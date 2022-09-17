@@ -65,7 +65,9 @@ public class CricketScorecard {
 		displayTeamDetails(batFirst, bat2nd);
 
 		totalFirstBatting = Batting(batFirst, scoreDetailsByplayerBatFirst,1);
+		System.out.println();
 		System.out.println("Target is.."+(totalFirstBatting+1));
+		System.out.println();
 		int totalSecondBatting=Batting(bat2nd, scoreDetailsByplayerBat2nd,2);
 		if(totalFirstBatting>totalSecondBatting)
 		{
@@ -85,6 +87,7 @@ public class CricketScorecard {
 		{
 			System.out.print((i+1)+". ");
 			String name = s.next();
+			
 			if(who==1)
 				scoreDetailsByplayerBatFirst.add(new playerScores(name, 0, 0));
 			else
@@ -107,9 +110,13 @@ public class CricketScorecard {
 		int i=1;
 		int wickets=0;
 		int teamScore=0;
+
+		System.out.println("*********************************");
 		System.out.println(battingTeam+" Start the batting...");
+		System.out.println("*********************************");
 		System.out.println(teamPlayers.get(0).playerName+" is Striker");
 		System.out.println(teamPlayers.get(i).playerName+" is Non Striker");
+		System.out.println("..................................");
 		int totalBalls=0;
 		int extras=0;
 
@@ -134,11 +141,11 @@ public class CricketScorecard {
 				System.out.println("Wide ball(EXTRA)");
 				teamScore+=1;
 				extras++;
-				totalBalls--;
+				//totalBalls--;
 				if(who==2 && checkWinOrLose(teamScore))
 				{
 					System.out.println(battingTeam+" is Winning the match...before "+((OVER*6)-totalBalls)+" Balls");
-					displayScoreBoard(teamPlayers, battingTeam, run, wickets, extras);
+					displayScoreBoard(teamPlayers, battingTeam, teamScore, wickets, extras);
 					break;
 				}
 			}
@@ -161,20 +168,25 @@ public class CricketScorecard {
 				}
 				if(who==2 && checkWinOrLose(teamScore))
 				{
-					System.out.println(battingTeam+" is Winning the match...before "+((OVER*6)-totalBalls+1)+" Balls");					
+					System.out.println(battingTeam+" is Winning the match...before "+((OVER*6)-totalBalls)+" Balls");					
 					displayScoreBoard(teamPlayers, battingTeam, teamScore, wickets, extras);
 					break;
 				}
 			}
-			totalBalls++;
+			
+			if(run!=-2)
+				totalBalls++;
+			
 			if(totalBalls%6==0)
 			{
 
 				playerScores changeStriker=striker;
 				striker=Nonstriker;
 				Nonstriker=changeStriker;
+				System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~");
 				System.out.println("__- "+(totalBalls/6)+" OVER COMPLETE -__");
-				System.out.println("Wickets"+wickets);
+				System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~");
+				//System.out.println("Wickets"+wickets);
 				displayScoreBoard(teamPlayers, battingTeam, teamScore, wickets, extras);
 			}
 
@@ -186,7 +198,7 @@ public class CricketScorecard {
 			System.out.println("First Innings Over...");
 		else
 			System.out.println("Second Innings Over...");
-		displayScoreBoard(teamPlayers, battingTeam, teamScore, wickets, extras);
+	//	displayScoreBoard(teamPlayers, battingTeam, teamScore, wickets, extras);
 
 		return teamScore;
 	}
@@ -197,22 +209,27 @@ public class CricketScorecard {
 
 	private	static void displayScoreBoard(List<playerScores> scoreOfPlayers,String teamName,int totalScore,int Wickets,int Extras)
 	{
-		System.out.println("------------------------------------");
+		System.out.println("-------------------------------------------");
 		System.out.println("Team Name : "+teamName);
-		System.out.println("------------------------------------");
-		System.out.println("playerName\t Runs \t Balls");
-		System.out.println("------------------------------------");
+		System.out.println("-------------------------------------------");
+		System.out.println("playerName\t Runs \t Balls \t strikeRate");
+		System.out.println("-------------------------------------------");
 		for(int i=0;i<11;i++)
 		{
 			playerScores player = scoreOfPlayers.get(i);
+			double strikeRate=0;
+			
+			if(scoreOfPlayers.get(i).runs>0 && scoreOfPlayers.get(i).balls>0)
+				strikeRate=(scoreOfPlayers.get(i).runs*100)/scoreOfPlayers.get(i).balls;
+			
 			if(player.balls!=0 || player.playerName.charAt(player.playerName.length()-1)=='*')
-			{
-				System.out.println(player.playerName+"\t\t"+player.runs+"\t"+player.balls);
+			{ 
+				System.out.printf(player.playerName+"\t\t"+player.runs+"\t"+player.balls+"\t %.2f\n",strikeRate);
 			}
 		}
-		System.out.println("------------------------------------");
-		System.out.println("Total score : "+totalScore+" Extras : "+Extras+" WICKETS : "+Wickets);
-		System.out.println("------------------------------------");
+		System.out.println("-------------------------------------------");
+		System.out.println("Total score: "+totalScore+" Extras: "+Extras+" WICKETS: "+Wickets);
+		System.out.println("-------------------------------------------");
 	}
 
 }
@@ -221,10 +238,27 @@ class playerScores
 	String playerName;
 	int runs;
 	int balls;
-	public playerScores(String playerName,int runs,int balls) 
+	public playerScores(String playerName, int runs, int balls) 
 	{
 		this.playerName=playerName;
 		this.runs=runs;
 		this.balls=balls;
+		
+	}
+}
+class bowlerPerformence
+{
+	String bowlerName;
+	int overs;
+	int balls;
+	int wickets;
+	int runs;
+	public bowlerPerformence(String bowlerName,int overs,int balls,int wickets,int runs) 
+	{
+		this.bowlerName=bowlerName;
+		this.overs=overs;
+		this.balls=balls;
+		this.wickets=wickets;
+		this.runs=runs;
 	}
 }
