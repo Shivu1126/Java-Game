@@ -13,6 +13,9 @@ public class CricketScorecard {
 	static ArrayList<playerScores> scoreDetailsByplayerBatFirst = new ArrayList<>();
 	static ArrayList<playerScores> scoreDetailsByplayerBat2nd = new ArrayList<>();
 
+	static ArrayList<bowlerPerformence> bowlingPlayers = new ArrayList<>();
+	static int tempBow=-1;
+
 	public static void main(String[] args) {
 
 		System.out.println("Enter team1 name ");
@@ -62,13 +65,27 @@ public class CricketScorecard {
 		}
 		addPlayersName(batFirst,1);
 		addPlayersName(bat2nd,2);
+		
 		displayTeamDetails(batFirst, bat2nd);
 
 		totalFirstBatting = Batting(batFirst, scoreDetailsByplayerBatFirst,1);
+		System.out.println("-----Bowling Status-----");
+		displayBowlingStatus(bowlingPlayers);
+		System.out.println("------------------------");
+		
 		System.out.println();
 		System.out.println("Target is.."+(totalFirstBatting+1));
 		System.out.println();
+		
+		bowlingPlayers.clear();
+		
 		int totalSecondBatting=Batting(bat2nd, scoreDetailsByplayerBat2nd,2);
+		
+		System.out.println("-------------------Bowling Status------------------");
+		displayBowlingStatus(bowlingPlayers);
+		System.out.println("---------------------------------------------------");
+		
+		
 		if(totalFirstBatting>totalSecondBatting)
 		{
 			System.out.println(batFirst+" team win the match by "+(totalFirstBatting-totalSecondBatting)+" runs.");
@@ -117,11 +134,21 @@ public class CricketScorecard {
 		System.out.println(teamPlayers.get(0).playerName+" is Striker");
 		System.out.println(teamPlayers.get(i).playerName+" is Non Striker");
 		System.out.println("..................................");
+		
+		bowlerPerformence bowlerDetail;
+		if(who==1)		
+			 bowlerDetail = chooseBowler(scoreDetailsByplayerBat2nd);		
+		else
+			 bowlerDetail = chooseBowler(scoreDetailsByplayerBatFirst);
+
 		int totalBalls=0;
 		int extras=0;
 
 		playerScores striker=teamPlayers.get(0);
 		playerScores Nonstriker=teamPlayers.get(i);
+		
+		String thisOver = "";
+
 		while(OVER*6>totalBalls && wickets<10)
 		{
 			int runsDetail[]= {-2,-1,0,1,2,3,4,6};
@@ -130,28 +157,37 @@ public class CricketScorecard {
 			if(run==-1)
 			{
 				System.out.println(striker.playerName+" is out...");
+				thisOver+="out ";
 				striker.balls++;
 				wickets++;
 				i++;
 				striker=teamPlayers.get(i);
 				System.out.println("New Striker is "+striker.playerName);
+				
+				bowlerDetail.balls++;
+				bowlerDetail.wickets++;
+				bowlerDetail.overs = bowlerDetail.balls/6; 
 			}
 			else if(run==-2)
 			{
 				System.out.println("Wide ball(EXTRA)");
+				thisOver+="wd ";
 				teamScore+=1;
 				extras++;
+				
+				bowlerDetail.runs++;
 				//totalBalls--;
 				if(who==2 && checkWinOrLose(teamScore))
 				{
 					System.out.println(battingTeam+" is Winning the match...before "+((OVER*6)-totalBalls)+" Balls");
-					displayScoreBoard(teamPlayers, battingTeam, teamScore, wickets, extras);
+					//displayScoreBoard(teamPlayers, battingTeam, teamScore, wickets, extras);
 					break;
 				}
 			}
 			else
 			{
 				System.out.println(striker.playerName+" take "+run+" run ");
+				thisOver+=run+" ";
 				teamScore+=run;
 				if(run%2==1)
 				{
@@ -166,10 +202,15 @@ public class CricketScorecard {
 					striker.balls++;
 					striker.runs+=run;
 				}
+				
+				bowlerDetail.balls++;
+				bowlerDetail.runs+=run;
+				bowlerDetail.overs=bowlerDetail.balls/6;
+				
 				if(who==2 && checkWinOrLose(teamScore))
 				{
 					System.out.println(battingTeam+" is Winning the match...before "+((OVER*6)-totalBalls)+" Balls");					
-					displayScoreBoard(teamPlayers, battingTeam, teamScore, wickets, extras);
+					//displayScoreBoard(teamPlayers, battingTeam, teamScore, wickets, extras);
 					break;
 				}
 			}
@@ -177,31 +218,98 @@ public class CricketScorecard {
 			if(run!=-2)
 				totalBalls++;
 			
-			if(totalBalls%6==0)
+			if(totalBalls%6==0 && run!=-2)
 			{
 
 				playerScores changeStriker=striker;
 				striker=Nonstriker;
 				Nonstriker=changeStriker;
 				System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~");
+				System.out.println("This Over("+(totalBalls/6)+") : "+thisOver);
 				System.out.println("__- "+(totalBalls/6)+" OVER COMPLETE -__");
+				System.out.println("Score :"+teamScore+" Wickets :"+wickets);
 				System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~");
-				//System.out.println("Wickets"+wickets);
-				displayScoreBoard(teamPlayers, battingTeam, teamScore, wickets, extras);
+				thisOver="";
+				if(totalBalls/6 != OVER && who==1)
+					bowlerDetail = chooseBowler(scoreDetailsByplayerBat2nd);
+				else if(totalBalls/6 != OVER && who==2)
+					bowlerDetail = chooseBowler(scoreDetailsByplayerBatFirst);
+				
+			//	System.out.println("New Bowler Name : "+ bowlerDetail.bowlerName);
+				System.out.println("*******************************");
 			}
-
+			
 		}
-
+		
 		striker.playerName=striker.playerName+"*";
 		Nonstriker.playerName=Nonstriker.playerName+"*";
 		if(who==1)
 			System.out.println("First Innings Over...");
 		else
 			System.out.println("Second Innings Over...");
-	//	displayScoreBoard(teamPlayers, battingTeam, teamScore, wickets, extras);
-
+		displayScoreBoard(teamPlayers, battingTeam, teamScore, wickets, extras);
+		tempBow=-1;
 		return teamScore;
 	}
+	
+	private static void displayBowlingStatus(ArrayList<bowlerPerformence> printBowlersStatus)
+	{
+		System.out.println("BowlerName\tOvers\tBalls\tRuns\tWickets");
+		for(int b_d=0;b_d<bowlingPlayers.size();b_d++)
+		{
+			bowlerPerformence bow = printBowlersStatus.get(b_d);
+			System.out.println(bow.bowlerName+"\t\t"+bow.overs+"\t"+bow.balls+"\t"+bow.runs+"\t"+bow.wickets);
+		}
+		
+	}
+
+	static String b_name="";
+	
+	private static bowlerPerformence chooseBowler(List<playerScores> bowlingTeamDetails)
+	{
+		System.out.println("-------Bowler Names-------");
+		for(int j=0;j<11;j++)
+		{
+			if(b_name!=bowlingTeamDetails.get(j).playerName)
+				System.out.println((j+1)+". "+bowlingTeamDetails.get(j).playerName);
+		}
+		System.out.println("--------------------------");
+		int b_id=0;
+		while(true)
+		{
+			System.out.println("Choose the bowler...");
+			int bowler = s.nextInt();
+			if(bowler<12 && tempBow!=bowler)
+			{
+				System.out.println("Bowler Name : "+bowlingTeamDetails.get(bowler-1).playerName);
+				b_name=bowlingTeamDetails.get(bowler-1).playerName;
+				
+				int temp=0;
+				for(int i=0;i<bowlingPlayers.size();i++)
+				{
+					if(b_name.equals(bowlingPlayers.get(i).bowlerName))
+					{
+						temp=1;
+						b_id=i;
+					}
+				}
+				if(temp==0)
+				{
+					bowlingPlayers.add(new bowlerPerformence(b_name, 0, 0, 0, 0));
+					b_id=bowlingPlayers.size()-1;
+				}
+				tempBow=bowler;	
+				break;
+			}
+			else
+			{
+				System.out.println("Enter proper input...");
+			}			
+		}
+		return bowlingPlayers.get(b_id);
+	}
+	
+	
 	private static boolean checkWinOrLose(int teamScore)
 	{
 		return teamScore>totalFirstBatting;
@@ -249,11 +357,11 @@ class playerScores
 class bowlerPerformence
 {
 	String bowlerName;
-	int overs;
+	double overs;
 	int balls;
 	int wickets;
 	int runs;
-	public bowlerPerformence(String bowlerName,int overs,int balls,int wickets,int runs) 
+	public bowlerPerformence(String bowlerName,double overs,int balls,int wickets,int runs) 
 	{
 		this.bowlerName=bowlerName;
 		this.overs=overs;
