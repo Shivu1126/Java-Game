@@ -81,12 +81,12 @@ class Alarm
 			Clip clip = AudioSystem.getClip();
 			clip.open(audioInputStream);
 			clip.start();
-			clip.loop(0);
-			System.out.println("If you want to stop..press '1'");
-			if(scanner.next().charAt(0)=='1')
-				clip.stop();
 			
-			clip.close();
+			clip.loop(Clip.LOOP_CONTINUOUSLY);
+			System.out.println("If you want stop..press 's' ");
+			
+			if(scanner.next().charAt(0)=='s')
+				return;
 		} catch(Exception ex) {
 			System.out.println("Error with playing sound.");
 			ex.printStackTrace();
